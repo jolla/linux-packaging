@@ -34,9 +34,8 @@ jobs:
 
     - name: Clone Raspberry Pi Kernel
       run: |
-        git clone https://github.com/raspberrypi/linux.git
+        git clone https://github.com/raspberrypi/linux.git -b rpi-6.10.y
         cd linux
-        git checkout rpi-6.10.y
 
     - name: Ensure Config Directory Exists
       run: |
