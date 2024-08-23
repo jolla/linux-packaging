@@ -42,10 +42,20 @@ jobs:
         cd linux
         mkdir -p arch/arm/configs/
 
-    - name: Use Custom Defconfig
+    - name: Use bcm2711_defconfig as Base Config
+      run: |
+        cd linux
+        make ARCH=arm bcm2711_defconfig
+
+    - name: Download Custom Defconfig
       run: |
         cd linux
         curl -o arch/arm/configs/wlanpi_v8_defconfig https://raw.githubusercontent.com/WLAN-Pi/wlanpi-kernel/6.7/wlanpi_v8_defconfig
+
+    - name: Merge Configurations
+      run: |
+        cd linux
+        ./scripts/kconfig/merge_config.sh arch/arm/configs/bcm2711_defconfig arch/arm/configs/wlanpi_v8_defconfig
 
     - name: Compile the Kernel
       run: |
