@@ -57,6 +57,11 @@ jobs:
         cd linux
         ./scripts/kconfig/merge_config.sh arch/arm/configs/bcm2711_defconfig arch/arm/configs/wlanpi_v8_defconfig
 
+    - name: Resolve Config Dependencies
+      run: |
+        cd linux
+        make ARCH=arm olddefconfig
+
     - name: Compile the Kernel
       run: |
         cd linux
