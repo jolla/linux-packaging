@@ -36,7 +36,7 @@ jobs:
       run: |
         git clone --depth=1 https://github.com/raspberrypi/linux.git
         cd linux
-        git checkout rpi-6.10.y
+        git checkout rpi-6.10.y  # Ensuring the correct branch is used
 
     - name: Use Custom Defconfig
       run: |
