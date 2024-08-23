@@ -1,0 +1,60 @@
+name: Build Custom Raspberry Pi Kernel
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+      with:
+        platforms: arm
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git build-essential bc bison flex libssl-dev \
+                                make libc6-dev libncurses5-dev \
+                                crossbuild-essential-armhf
+
+    - name: Clone Raspberry Pi Kernel
+      run: |
+        git clone --depth=1 https://github.com/raspberrypi/linux.git
+        cd linux
+        git checkout rpi-6.10.y
+
+    - name: Use Custom Defconfig
+      run: |
+        curl -o arch/arm/configs/wlanpi_v8_defconfig https://raw.githubusercontent.com/WLAN-Pi/wlanpi-kernel/6.7/wlanpi_v8_defconfig
+        make ARCH=arm wlanpi_v8_defconfig
+
+    - name: Compile the Kernel
+      run: |
+        make -j$(nproc) ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage modules dtbs
+        make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=../modules modules_install
+
+    - name: Prepare Debian Packaging
+      run: |
+        cp /path/to/linux-packaging/debian linux/ -r
+        cd linux
+        dpkg-buildpackage -rfakeroot -b -us -uc
+
+    - name: Upload Debian Packages
+      uses: actions/upload-artifact@v3
+      with:
+        name: kernel-deb-packages
+        path: ../*.deb
