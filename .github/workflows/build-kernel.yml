@@ -36,21 +36,27 @@ jobs:
       run: |
         git clone https://github.com/raspberrypi/linux.git
         cd linux
-        git checkout rpi-6.10.y  # Ensuring the correct branch is used
+        git checkout rpi-6.10.y
+
+    - name: Ensure Config Directory Exists
+      run: |
+        cd linux
+        mkdir -p arch/arm/configs/
 
     - name: Use Custom Defconfig
       run: |
+        cd linux
         curl -o arch/arm/configs/wlanpi_v8_defconfig https://raw.githubusercontent.com/WLAN-Pi/wlanpi-kernel/6.7/wlanpi_v8_defconfig
-        make ARCH=arm wlanpi_v8_defconfig
 
     - name: Compile the Kernel
       run: |
+        cd linux
         make -j$(nproc) ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage modules dtbs
         make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=../modules modules_install
 
     - name: Prepare Debian Packaging
       run: |
-        cp /path/to/linux-packaging/debian linux/ -r
+        cp -r /path/to/linux-packaging/debian linux/
         cd linux
         dpkg-buildpackage -rfakeroot -b -us -uc
 
