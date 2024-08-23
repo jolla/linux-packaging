@@ -34,7 +34,7 @@ jobs:
 
     - name: Clone Raspberry Pi Kernel
       run: |
-        git clone --depth=1 https://github.com/raspberrypi/linux.git
+        git clone https://github.com/raspberrypi/linux.git
         cd linux
         git checkout rpi-6.10.y  # Ensuring the correct branch is used
 
